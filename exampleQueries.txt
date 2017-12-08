@@ -1,0 +1,86 @@
+Add/Amend A Customer:
+
+	INSERT INTO customer (id, first_name, last_name, phone_number, address, postcode, email_address, notes) VALUES (3345, "Smithy", "Jones", "01752 333444", "33 Dorchester Street", "TQ2HAQ", "appendedCustomer@hotmail.com", "no show");
+
+	UPDATE customer SET phone_number = "01752 222345" WHERE id = 3345;
+
+Add/Amend A Work-Plan:
+
+	INSERT INTO work_plan (work_plan_car_id, work_plan_customer_id, booking_date, estimated_completion_date_time, completion_date) VALUES (12, 3345, "2017-12-26 09:00:00", "2017-12-29 18:00:00", "2017-12-28 09:00:00");
+
+	UPDATE work_plan SET estimated_completion_date_time = "2017-12-29 19:00:00" WHERE id = 60;
+
+Add/Amend A Commodity Part:
+
+	INSERT INTO commodity_part (part_name, part_price, commodity_supplier_id, commodity_job_id) VALUES ("WD40", 2.95, 3, 12);
+
+	UPDATE commodity_part SET part_price = 2.89 WHERE id = 68;
+
+Add/Amend A Specialist Part:
+
+	INSERT INTO special_part (order_code, part_name, part_price, special_supplier_id, special_job_id) VALUES ("88ABC", "roll cage", 5999.99, 5, 1);
+
+	UPDATE special_part SET part_price = 4999.99 WHERE id = 66;
+
+Record A Payment:
+
+	INSERT INTO transaction (amount_paid, transaction_date_time, transaction_work_plan_id) VALUES (99.99, "2017-12-28 09:00:00", 60);
+
+Cancel A Booking:
+
+	DELETE FROM work_plan WHERE id = 60;
+
+List All Repairs To A Certain Car (To Present Date):
+
+	SELECT work_plan.id, work_plan.work_plan_car_id, job.job_work_plan_id, job.id, job.description FROM work_plan, job WHERE work_plan.id = job.job_work_plan_id AND work_plan.work_plan_car_id = 9;
+
+List Frequent Customers:
+
+	SELECT work_plan_customer_id, completion_date
+	FROM work_plan
+	WHERE completion_date > '2017-12%'
+	ORDER BY work_plan_customer_id DESC;
+
+	SELECT * FROM customer WHERE id = 3345;
+
+OR:
+
+	SELECT work_plan_customer_id, work_plan.booking_date, count(work_plan_customer_id)
+	FROM work_plan
+	WHERE completion_date > '2017-12%'
+	GROUP BY work_plan_customer_id
+	HAVING COUNT(work_plan_customer_id) > 1
+	AND work_plan.booking_date < '2018%' AND work_plan.booking_date > '2017%';
+
+
+List Frequently Repaired Cars:
+
+	SELECT work_plan_car_id, completion_date
+	FROM work_plan
+	WHERE completion_date > '2017-12%'
+	ORDER BY work_plan_car_id ASC;
+
+	SELECT * FROM car WHERE id = 12;
+
+List Customers Who Have Not Returned:
+
+	SELECT work_plan_customer_id, completion_date
+	FROM work_plan
+	WHERE completion_date > '2015-12%'
+	ORDER BY work_plan_customer_id DESC;
+	SELECT COUNT(*) FROM work_plan WHERE work_plan.work_plan_customer_id = 3345;
+
+List Cars That Have Had Specialist Parts Returned During Their Repair:
+
+	SELECT car.id AS car_id, 
+	car.registration, 
+	work_plan.id AS work_plan_id, 
+	work_plan.work_plan_car_id AS work_plan_car_id, 
+	job.id AS job_id, job.job_work_plan_id AS job_work_plan_id, 
+	special_part.id AS special_part_id,
+	special_part.part_name,
+	special_part.special_job_id, 
+	special_part.return_date
+	FROM car, work_plan, job, special_part
+	WHERE car.id = work_plan.work_plan_car_id AND work_plan.id = job.job_work_plan_id AND job.id = special_part.special_job_id
+	AND special_part.return_date IS NOT NULL;
