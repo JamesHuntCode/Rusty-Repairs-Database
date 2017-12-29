@@ -1,3 +1,7 @@
+/*
+Query used to elicit information regarding cars that have had specialised parts returned due to faults during their repair.
+*/
+
 SELECT car.id AS car_id,
 	car.registration,
 	work_plan.id AS work_plan_id,
